@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司內部點餐工具</title>
+    <!-- Google Fonts for Modern Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="all.css">
+</head>
+
+<body>
+    <div id="app" class="container">
+        <!-- 頂部導覽列 -->
+        <header class="header">
+            <h1>公司內部點餐工具</h1>
+            <div id="userInfo" class="user-info hidden">
+                <span id="userNameRole">尚未登入</span>
+                <button id="logoutBtn" class="btn btn-outline" style="display: none;">登出</button>
+            </div>
+        </header>
+
+        <!-- 登入區塊 -->
+        <section id="loginSection" class="section login-section">
+            <h2>歡迎使用點餐系統</h2>
+            <p>請使用公司授權的 Google 帳號登入</p>
+            <div class="google-login-wrapper">
+                <button id="googleLoginBtn" class="btn btn-primary btn-large">
+                    <!-- Google SVG Icon -->
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="google-icon">
+                        <g>
+                            <path fill="#EA4335"
+                                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z">
+                            </path>
+                            <path fill="#4285F4"
+                                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z">
+                            </path>
+                            <path fill="#FBBC05"
+                                d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z">
+                            </path>
+                            <path fill="#34A853"
+                                d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z">
+                            </path>
+                            <path fill="none" d="M0 0h48v48H0z"></path>
+                        </g>
+                    </svg>
+                    Google 登入
+                </button>
+            </div>
+            <p id="loginErrorMsg" class="error-msg hidden"></p>
+        </section>
+
+        <!-- 載入中指示器 -->
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="spinner"></div>
+            <p>載入中，請稍候...</p>
+        </div>
+
+        <!-- 登入後的主介面 -->
+        <div id="mainDashboard" class="main-dashboard hidden">
+
+            <!-- 目前點單情況 (統計資訊) -->
+            <section class="section stats-section">
+                <div class="stat-card">
+                    <h3>已點單人數</h3>
+                    <p id="statPeople" class="stat-value">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>總金額</h3>
+                    <p id="statTotal" class="stat-value">0 元</p>
+                </div>
+            </section>
+
+            <!-- 管理員專區 (只有管理員可見) -->
+            <section id="adminSection" class="section admin-section hidden">
+                <div class="admin-header">
+                    <h2>管理員專區</h2>
+                </div>
+
+                <div class="admin-controls">
+                    <div class="control-group">
+                        <h3>設定今日開放餐廳</h3>
+                        <p class="subtitle">勾選後將會更新給所有人看的點餐菜單</p>
+                        <div id="restaurantCheckboxes" class="checkbox-group">
+                            <!-- JS 動態生成餐廳選項 -->
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+                            <button id="saveRestaurantsBtn" class="btn btn-primary">儲存今日餐廳</button>
+                            <button id="clearOrdersBtn" class="btn btn-danger">清空今日點餐</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 點餐介面 -->
+            <section id="orderingSection" class="section ordering-section">
+                <h2>今日餐點清單</h2>
+                <div id="todayRestaurantsTip" class="info-tip">今日開放餐廳：<span id="openRestaurantsList">載入中...</span></div>
+
+                <div id="menuCardsContainer" class="menu-grid">
+                    <!-- JS 動態生成餐點卡片 -->
+                </div>
+            </section>
+
+            <!-- 已點餐名單區塊 -->
+            <section id="ordersListSection" class="section orders-section">
+                <div class="section-header">
+                    <h2>今日訂單一覽</h2>
+                    <button id="copyOrdersBtn" class="btn btn-secondary">複製文字給 LINE</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>姓名/信箱</th>
+                                <th>餐廳名稱</th>
+                                <th>餐點內容</th>
+                                <th>備註</th>
+                                <th>金額</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- JS 動態生成點單列 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Google API Client Libraries -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+
+    <!-- Main JS Application -->
+    <script src="all.js"></script>
+</body>
+
+</html>
